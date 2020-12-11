@@ -34,11 +34,12 @@
 #' # Plot with raster::plot
 #' plot(NLCD)
 #' }
-get_nlcd <- function(template,
+my_get_nlcd <- function(template,
                      label,
                      year = 2016,
                      dataset = "Land_Cover",
                      landmass = "L48",
+                     output_crs = 3857,
                      extraction.dir = paste0(
                        tempdir(),
                        "/FedData/"
@@ -46,7 +47,7 @@ get_nlcd <- function(template,
                      force.redo = F) {
   extraction.dir <- normalizePath(paste0(extraction.dir, "/."), mustWork = FALSE)
 
-  template %<>% template_to_sf()
+  template %<>% FedData:::template_to_sf()
 
   coverage <- paste0("NLCD_", year, "_", dataset, "_", landmass)
   source <- paste0("https://www.mrlc.gov/geoserver/mrlc_display/", coverage, "/ows")
@@ -79,7 +80,8 @@ get_nlcd <- function(template,
         request = "GetCoverage",
         coverageid = coverage,
         subset = paste0('X("', template["xmin"], '","', template["xmax"], '")'),
-        subset = paste0('Y("', template["ymin"], '","', template["ymax"], '")')
+        subset = paste0('Y("', template["ymin"], '","', template["ymax"], '")'),
+        outputcrs = paste0("epsg:", output_crs)
       ),
       httr::write_disk(
         path = outfile,
